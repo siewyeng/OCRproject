@@ -1,0 +1,8 @@
+name: ocr_project
+channels:
+  - defaults
+dependencies:
+  - python=3.10.13
+  - pip=23.3.1
+  - pip:
+    - -r requirements.txt
