@@ -1,3 +1,4 @@
 memes/
 temp/
 *.pt
+**/__pycache__/
