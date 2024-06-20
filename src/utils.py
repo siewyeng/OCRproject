@@ -23,3 +23,7 @@ prefix_len = 10  # increasing it may cause memory problems
 
 D = torch.device
 CPU = torch.device("cpu")
+
+## for deployment
+api_port = "8000"
+api_host = "0.0.0.0"
