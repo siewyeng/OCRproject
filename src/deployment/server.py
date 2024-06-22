@@ -1,6 +1,7 @@
 import io
 import shutil
 from pathlib import Path
+from typing import Dict
 
 import fastapi
 import uvicorn
@@ -50,7 +51,7 @@ async def upload_image(
     # model_path: str = Form(...),
     # prompt: str = Form("A photo of"),
     # use_beam_search: bool = Form(False),
-):
+) -> Dict[str, str]:
     image_bytes = await image.read()
     # Open the image with PIL
     pil_image = Image.open(io.BytesIO(image_bytes))
@@ -58,7 +59,7 @@ async def upload_image(
     # Convert the PIL image to the format needed for your model
     caption = infer_caption_from_image(pil_image)
 
-    return JSONResponse(content={"caption": caption})
+    return {"caption": caption}
 
 
 if __name__ == "__main__":

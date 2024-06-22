@@ -38,44 +38,60 @@
             margin: 20px 0;
             /* Add margin for spacing */
         }
+
+        #frame {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
     <h1>Upload your meme</h1>
-    <form action="/upload-image/" method="post" enctype="multipart/form-data">
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
         <label for="file">Choose an image:</label>
-        <input type="file" name="image" accept="image/*" required>
+        <br><br>
+        <input type="file" name="image" accept="image/*" onchange="preview()" required>
+        <br><br>
+        <img id="frame" src="" width="400px" height="400px" />
         <br><br>
         <button type="submit" id="uploadButton">Upload</button>
     </form>
     <p><b>What is this meme about?</b></p>
-    <div id="result">{{ caption if caption else "" }}</div>
-</body>
-<script>
-    document.getElementById('uploadForm').addEventListener('submit', async function (event) {
-        event.preventDefault(); // Prevent default form submission
+    <div id="result"></div>
 
-        const form = event.target;
-        const formData = new FormData(form);
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function (event) {
+            event.preventDefault(); // Prevent default form submission
 
-        try {
-            const response = await fetch('/upload-image', {
-                method: 'POST',
-                body: formData
-            });
+            const form = event.target;
+            const formData = new FormData(form);
 
-            if (response.ok) {
-                const data = await response.json();
-                document.getElementById('result').innerText = data.caption;
-            } else {
-                document.getElementById('result').innerText = 'Failed to upload image';
+            try {
+                const response = await fetch('/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('result').innerHTML = data.caption;
+                } else {
+                    const errorData = await response.json();
+                    document.getElementById('result').innerHTML = `<span style="color: red;">${errorData.detail || 'Failed to upload image'}</span>`;
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                document.getElementById('result').innerHTML = `<span style="color: red;">Error uploading image</span>`;
             }
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            document.getElementById('result').innerText = 'Error uploading image';
+        });
+
+        function preview() {
+            const fileInput = document.querySelector('input[name="image"]');
+            const frame = document.getElementById('frame');
+            frame.src = URL.createObjectURL(fileInput.files[0]);
+            frame.style.display = "block";  // Show the image frame when an image is selected
         }
-    });
-</script>
+    </script>
+</body>
 
 </html>
