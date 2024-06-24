@@ -9,7 +9,7 @@ from PIL import Image
 from src.utils import *
 from torch import nn
 from tqdm import trange
-from transformers import CLIPModel, CLIPProcessor, GPT2LMHeadModel
+from transformers import CLIPModel, CLIPProcessor, GPT2LMHeadModel, GPT2Tokenizer
 
 # use the pretrained models from huggingface
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
@@ -40,15 +40,26 @@ class ClipCaptionModel(nn.Module):
         )
 
     def forward(
-        self, tokens: T, prefix: T, mask: Optional[T] = None, labels: Optional[T] = None
+        self,
+        tokens: T,
+        prefix: T,
+        mask: Optional[T] = None,
+        labels: Optional[T] = None,
+        prompt: str = "\n The meme means",
     ):
         embedding_text = self.gpt.transformer.wte(tokens)
         prefix_projections = self.clip_project(prefix).view(
             -1, self.prefix_length, self.gpt_embedding_size
         )
-        # print(embedding_text.size()) #torch.Size([5, 67, 768])
-        # print(prefix_projections.size()) #torch.Size([5, 1, 768])
-        embedding_cat = torch.cat((prefix_projections, embedding_text), dim=1)
+        if prompt:
+            tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+            prompt_tokens = tokenizer(prompt, return_tensors="pt")["input_ids"].to(
+                tokens.device
+            )
+            embedding_prompt = self.gpt.transformer.wte(prompt_tokens)
+            embedding_cat = torch.cat((prefix_projections, embedding_prompt), dim=1)
+        else:
+            embedding_cat = torch.cat((prefix_projections, embedding_text), dim=1)
         if labels is not None:
             dummy_token = self.get_dummy_token(tokens.shape[0], tokens.device)
             labels = torch.cat((dummy_token, tokens), dim=1)

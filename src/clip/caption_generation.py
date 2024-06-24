@@ -99,17 +99,24 @@ def generate2(
 
     with torch.no_grad():
 
-        for entry_idx in range(entry_count):
+        for _ in range(entry_count):
             if embed is not None:
                 generated = embed
             else:
-                if tokens is None:
-                    tokens = torch.tensor(tokenizer.encode(prompt))
-                    tokens = tokens.unsqueeze(0).to(device)
+                generated = torch.tensor([]).to(device)  # empty tensor so can concat
+                # if tokens is None:
+                #     tokens = torch.tensor(tokenizer.encode(prompt))
+                #     tokens = tokens.unsqueeze(0).to(device)
 
-                generated = model.gpt.transformer.wte(tokens)
+                # generated = model.gpt.transformer.wte(tokens)
+            if prompt:
+                prompt_tokens = tokenizer(prompt, return_tensors="pt")["input_ids"].to(
+                    device
+                )
+                prompt_embedding = model.gpt.transformer.wte(prompt_tokens)
+                generated = torch.cat((generated, prompt_embedding), dim=1)
 
-            for i in range(entry_length):
+            for _ in range(entry_length):
 
                 outputs = model.gpt(inputs_embeds=generated)
                 logits = outputs.logits
