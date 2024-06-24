@@ -10,6 +10,10 @@ A pretrained CLIP model is used to generate the summary of image. Based on the [
 * Ensure that the environment has pytorch before starting. If it does not have pytorch yet, please install from the [Pytorch site](https://pytorch.org/get-started/locally/) with your preferred configurations for the compute platform.
 
 ## Example
+Base output:
+
+![alt text](images/base.png)
+
 Output after prompting that it is a meme:
 
-![alt text](image-1.png)
+![alt text](images/prompted.png)
