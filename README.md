@@ -12,8 +12,10 @@ A pretrained CLIP model is used to generate the summary of image. Based on the [
 ## Example
 Base output:
 
-![alt text](images/base.png)
+![alt text](images/base_yoda.png)
+
+Even though this is must funnier, an explanation that may be more informative for the confused.
 
 Output after prompting that it is a meme:
 
-![alt text](images/prompted.png)
+![alt text](images/prompted_yoda.png)

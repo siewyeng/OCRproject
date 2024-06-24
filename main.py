@@ -58,7 +58,9 @@ def infer_caption_from_image(pil_image: Image.Image) -> str:
         prefix_embed = model.clip_project(prefix).reshape(1, prefix_len, -1)
 
         # Generate caption (you can use beam search or other methods as needed)
-        generated_text_prefix = generate2(model, tokenizer, embed=prefix_embed)
+        generated_text_prefix = generate2(
+            model, tokenizer, embed=prefix_embed, prompt=custom_prompt
+        )
 
     return generated_text_prefix
 
@@ -72,7 +74,9 @@ def main(args):
 
     with torch.no_grad():
         prefix = clip_model.encode_image(image).to(device, dtype=torch.float32)
-        prefix_embed = model.clip_project(prefix).reshape(1, prefix_len, -1)
+        prefix_embed = model.clip_project(prefix).reshape(
+            1, prefix_len, -1
+        )  # projects the CLIP embedding into a dimension suitable for GPT2
     if use_beam_search:
         generated_text_prefix = generate_beam(model, tokenizer, embed=prefix_embed)[0]
     else:
