@@ -23,7 +23,7 @@ prefix_len = 10  # increasing it may cause memory problems
 
 D = torch.device
 CPU = torch.device("cpu")
-custom_prompt = ""
+custom_prompt = "\nExplain the previous meme and how it is funny:"
 
 ## for deployment
 api_port = "8000"

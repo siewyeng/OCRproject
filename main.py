@@ -6,13 +6,23 @@ import torch
 import torch.nn.functional as nnf
 from PIL import Image
 from src.clip.caption_generation import generate2, generate_beam
-from src.clip.model import ClipCaptionModel
+from src.clip.model import ClipCaptionModel, ClipCaptionPrefix
 from src.utils import *
 from tqdm import trange
 from transformers import GPT2Tokenizer
 
 
 def get_device(device_id: int) -> D:
+    """Function used to determind if GPU can be used
+
+    Parameters
+    ----------
+    device_id : int
+
+    Returns
+    -------
+    torch device
+    """
     if not torch.cuda.is_available():
         return CPU
     device_id = min(torch.cuda.device_count() - 1, device_id)
@@ -21,20 +31,46 @@ def get_device(device_id: int) -> D:
 
 CUDA = get_device
 
-model_path = "pretrained_models/model_weights.pt"
 device = CUDA(0) if is_gpu else "cpu"
 
 
-def load_models():
-    clip_model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
+def load_models(mode="transformer"):
+    """Loads the appropriate pretrained model from the model weights
+    in the directory
+
+    Parameters
+    ----------
+    mode : str, optional
+        the type of model which can also be "MLP", by default "transformer"
+
+    Returns
+    -------
+    model: the pretrained model
+    tokenizer: gpt2 tokenizer
+    clip_model: clip model (in this case RN50x4)
+    preprocess: the method used by clip to preprocess the image before
+        sending it to the model
+    """
+    clip_model, preprocess = clip.load("RN50x4", device=device, jit=False)
     tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 
-    model = ClipCaptionModel(prefix_len)
+    if mode == "MLP":
+        model_path = "pretrained_models/model_weights.pt"
+        model = ClipCaptionModel(prefix_len)
 
-    model.load_state_dict(
-        torch.load(model_path, map_location=CPU), strict=False
-    )  # already downloaded weights into folder
-
+        model.load_state_dict(
+            torch.load(model_path, map_location=CPU), strict=False
+        )  # already downloaded weights into folder
+    else:
+        model_path = "pretrained_models/transformer_weights.pt"
+        model = ClipCaptionPrefix(
+            prefix_length=40,
+            clip_length=40,
+            prefix_size=640,
+            num_layers=8,
+            mapping_type="transformer",
+        )
+        model.load_state_dict(torch.load(model_path, map_location=CPU))
     model = model.eval()  # do clip caption in eval mode
     model = model.to(device)
     return model, tokenizer, clip_model, preprocess
@@ -49,6 +85,19 @@ def process_image(image_path, preprocess, device):
 
 # used by server.py
 def infer_caption_from_image(pil_image: Image.Image) -> str:
+    """Generates text caption of image based on the components generated
+    by load_models. This is used by the upload_image in server.py
+
+    Parameters
+    ----------
+    pil_image : Image.Image
+        the image to generate caption for
+
+    Returns
+    -------
+    str
+        caption
+    """
     model, tokenizer, clip_model, preprocess = load_models()
     # Preprocess the image
     image = preprocess(pil_image).unsqueeze(0).to(device)
@@ -66,6 +115,12 @@ def infer_caption_from_image(pil_image: Image.Image) -> str:
 
 
 def main(args):
+    """Carries out the image caption generationg in the command line
+
+    Parameters
+    ----------
+    args : arguments include image_path
+    """
     #     image_path = "memes/210513.png"
     # # @title Inference
     use_beam_search = False  # @param {type:"boolean"}
