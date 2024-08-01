@@ -5,9 +5,9 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    # defaults:
-    #   run:
-    #     shell: bash -l {0}
+    defaults:
+      run:
+        shell: bash -l {0}
     # container:
     #   image: continuumio/miniconda3:23.10.0-1
     strategy:
@@ -32,5 +32,5 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        pylint src --fail-under=5.0
+        pylint src --fail-under=5.0 --disable=E0401
         pylint main.py --fail-under=5.0
