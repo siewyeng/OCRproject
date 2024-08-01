@@ -1,3 +1,5 @@
+"""caption_generation.py contains the main functions used to generate captions using gpt2"""
+
 import torch
 import torch.nn.functional as nnf
 

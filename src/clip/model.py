@@ -1,14 +1,18 @@
-import os
-from typing import List, Optional, Tuple, Union
+"""model.py includes the initialisation of the pretrained models together with higher level functions"""
 
-import clip
-import numpy as np
+# import os
+from typing import Optional, Tuple
+
+# import clip
+# import numpy as np
 import torch
-import torch.nn.functional as nnf
-from PIL import Image
+
+# import torch.nn.functional as nnf
+# from PIL import Image
 from src.utils import *
 from torch import nn
-from tqdm import trange
+
+# from tqdm import trange
 from transformers import CLIPModel, CLIPProcessor, GPT2LMHeadModel, GPT2Tokenizer
 
 # use the pretrained models from huggingface

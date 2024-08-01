@@ -1,15 +1,20 @@
+"""main.py is how this whole project can be called from the cmd and also contains main function for server"""
+
 import argparse
-import os
 
 import clip
 import torch
-import torch.nn.functional as nnf
+
+# import torch.nn.functional as nnf
 from PIL import Image
 from src.clip.caption_generation import generate2, generate_beam
 from src.clip.model import ClipCaptionModel
 from src.utils import *
-from tqdm import trange
+
+# from tqdm import trange
 from transformers import GPT2Tokenizer
+
+# import os
 
 
 def get_device(device_id: int) -> D:
@@ -22,14 +27,14 @@ def get_device(device_id: int) -> D:
 CUDA = get_device
 
 model_path = "pretrained_models/model_weights.pt"
-device = CUDA(0) if is_gpu else "cpu"
+device = CUDA(0) if IS_GPU else "cpu"
 
 
 def load_models():
     clip_model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
     tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 
-    model = ClipCaptionModel(prefix_len)
+    model = ClipCaptionModel(PREFIX_LEN)
 
     model.load_state_dict(
         torch.load(model_path, map_location=CPU), strict=False
@@ -55,11 +60,11 @@ def infer_caption_from_image(pil_image: Image.Image) -> str:
 
     with torch.no_grad():
         prefix = clip_model.encode_image(image).to(device, dtype=torch.float32)
-        prefix_embed = model.clip_project(prefix).reshape(1, prefix_len, -1)
+        prefix_embed = model.clip_project(prefix).reshape(1, PREFIX_LEN, -1)
 
         # Generate caption (you can use beam search or other methods as needed)
         generated_text_prefix = generate2(
-            model, tokenizer, embed=prefix_embed, prompt=custom_prompt
+            model, tokenizer, embed=prefix_embed, prompt=CUSTOM_PROMPT
         )
 
     return generated_text_prefix
@@ -75,7 +80,7 @@ def main(args):
     with torch.no_grad():
         prefix = clip_model.encode_image(image).to(device, dtype=torch.float32)
         prefix_embed = model.clip_project(prefix).reshape(
-            1, prefix_len, -1
+            1, PREFIX_LEN, -1
         )  # projects the CLIP embedding into a dimension suitable for GPT2
     if use_beam_search:
         generated_text_prefix = generate_beam(model, tokenizer, embed=prefix_embed)[0]

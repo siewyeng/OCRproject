@@ -1,3 +1,5 @@
+"""utils.py contains variables and constants to be used in other files"""
+
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -18,13 +20,13 @@ TNS = Union[Tuple[TN, ...], List[TN]]
 TSN = Optional[TS]
 TA = Union[T, ARRAY]
 
-is_gpu = False
-prefix_len = 10  # increasing it may cause memory problems
+IS_GPU = False
+PREFIX_LEN = 10  # increasing it may cause memory problems
 
 D = torch.device
 CPU = torch.device("cpu")
-custom_prompt = ""
+CUSTOM_PROMPT = ""
 
 ## for deployment
-api_port = "8000"
-api_host = "0.0.0.0"
+API_PORT = "8000"
+API_HOST = "0.0.0.0"
