@@ -2,8 +2,8 @@ name: ocr_project
 channels:
   - conda-forge
   - pytorch
-  - gcc_linux-64
-  - gxx_linux-64
+  # - gcc_linux-64
+  # - gxx_linux-64
 dependencies:
   - python=3.10.13
   - pip=23.3.1
